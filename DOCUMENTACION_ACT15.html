@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actividad 15 - Uso de Versiones y Tags en GitHub y Docker | Emmanuelle Hernández Oropeza</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+            line-height: 1.6;
+            color: #222222;
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: #ffffff;
+        }
+        .header {
+            border-bottom: 2px solid #333333;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        h1 {
+            font-size: 24px;
+            margin: 0 0 15px 0;
+            color: #111111;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .datos {
+            font-size: 15px;
+            line-height: 1.7;
+        }
+        .datos strong {
+            color: #111111;
+        }
+        h2 {
+            font-size: 18px;
+            color: #0b4c8c;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 5px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        h3 {
+            font-size: 16px;
+            color: #333333;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        p, li {
+            font-size: 14.5px;
+            text-align: justify;
+        }
+        ul, ol {
+            padding-left: 25px;
+        }
+        li {
+            margin-bottom: 6px;
+        }
+        pre {
+            background-color: #f6f8fa;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            padding: 14px;
+            overflow-x: auto;
+            font-family: "Consolas", "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.45;
+        }
+        code {
+            font-family: "Consolas", "Courier New", monospace;
+            background-color: #eff1f3;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        .imagen-contenedor {
+            margin: 25px 0;
+            text-align: center;
+        }
+        .imagen-contenedor img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+        .pie-imagen {
+            font-size: 13px;
+            color: #555555;
+            margin-top: 8px;
+            font-style: italic;
+        }
+        .img-box {
+            margin: 20px 0;
+            padding: 18px;
+            background-color: #fbfbfb;
+            border: 1px dashed #cccccc;
+            border-radius: 6px;
+            text-align: center;
+        }
+        .img-box p {
+            text-align: center;
+            font-size: 13px;
+            color: #666666;
+            margin: 0;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>ACTIVIDAD 15: USO DE VERSIONES Y TAGS EN GITHUB Y DOCKER</h1>
+        <div class="datos">
+            <strong>Asignatura:</strong> Gestión del Proceso de Desarrollo de Software<br>
+            <strong>Alumno:</strong> Emmanuelle Hernández Oropeza<br>
+            <strong>Fecha de Entrega:</strong> 17 de noviembre de 2026
+        </div>
+    </div>
+
+    <h2>1. Introducción y Objetivos</h2>
+    <p>
+        El propósito de esta práctica es implementar el versionado semántico de una API en un ciclo de integración y entrega continua (CI/CD) combinando Git Tags, GitHub Actions y GitHub Container Registry (GHCR).
+    </p>
+    <p>
+        A lo largo de la actividad se incorporan endpoints para consultar la versión y el estado de la aplicación, se ajusta el pipeline automatizado para etiquetar de manera dinámica las imágenes generadas mediante el paso Preparar nombre y etiquetas, y se descargan dos versiones distintas (v1.0.0 y v2.0.0) para ejecutarlas en simultáneo en Docker sobre puertos distintos, validando su coexistencia y operatividad independiente.
+    </p>
+
+    <h2>2. Implementación Técnica</h2>
+
+    <h3>2.1. Endpoints de Versión y Estado en la API</h3>
+    <p>
+        Se implementaron dos endpoints específicos dentro de la aplicación FastAPI para permitir la inspección externa de la versión en ejecución y la comprobación de salud del servicio:
+    </p>
+    <ul>
+        <li><code>/version</code>: Retorna la versión del servicio y el identificador de release correspondiente.</li>
+        <li><code>/status</code>: Confirma el estado operativo del contenedor junto con el hostname interno y timestamp.</li>
+    </ul>
+
+    <h3>2.2. Ajuste del Step en GitHub Actions</h3>
+    <p>
+        En el flujo de trabajo de GitHub Actions se modificó el step de generación de etiquetas para extraer dinámicamente la etiqueta de versión desde la referencia de Git (<code>GITHUB_REF_NAME</code>), etiquetando la imagen en GHCR con la versión específica y con la etiqueta latest:
+    </p>
+    <pre><code>- name: Preparar nombre y etiquetas
+  id: image
+  shell: bash
+  run: |
+    IMAGE_NAME="ghcr.io/${GITHUB_REPOSITORY,,}"
+    TAG="${GITHUB_REF_NAME}"
+    echo "Generando etiquetas para: ${IMAGE_NAME} con tag: ${TAG}"
+    echo "tags=${IMAGE_NAME}:${TAG},${IMAGE_NAME}:latest" >> "$GITHUB_OUTPUT"</code></pre>
+
+    <h3>2.3. Control de Versiones con Git Tags</h3>
+    <p>
+        Para disparar la construcción de cada versión sin alterar la rama principal, se utilizaron etiquetas de Git anotadas con el formato semántico v1.0.0 y v2.0.0:
+    </p>
+    <pre><code># Etiquetar y publicar la versión 1.0.0
+git tag v1.0.0
+git push origin v1.0.0
+
+# Tras actualizar el código a la versión 2.0.0
+git add .
+git commit -m "feat: actualizacion a version 2.0.0"
+git tag v2.0.0
+git push origin main
+git push origin v2.0.0</code></pre>
+
+    <h2>3. Evidencias de Ejecución</h2>
+
+    <h3>3.1. Pruebas Unitarias Locales con Pytest</h3>
+    <div class="img-box" id="box-pytest">
+        <p>[ Captura de pantalla de la terminal ejecutando: python -m pytest -v ]</p>
+    </div>
+
+    <h3>3.2. Generación de Imagen con Tag v1.0.0 en GitHub Actions</h3>
+    <div class="img-box" id="box-actions-v1">
+        <p>[ Captura de GitHub Actions completando el workflow para el tag v1.0.0 ]</p>
+    </div>
+
+    <h3>3.3. Generación de Imagen con Tag v2.0.0 en GitHub Actions</h3>
+    <div class="img-box" id="box-actions-v2">
+        <p>[ Captura de GitHub Actions completando el workflow para el tag v2.0.0 ]</p>
+    </div>
+
+    <h3>3.4. Paquetes con Tags v1.0.0 y v2.0.0 en GitHub Packages</h3>
+    <div class="img-box" id="box-packages">
+        <p>[ Captura de la sección Packages en GitHub mostrando los tags v1.0.0 y v2.0.0 ]</p>
+    </div>
+
+    <h3>3.5. Descarga y Ejecución Simultánea en Docker (Puertos 8000 y 8001)</h3>
+    <div class="img-box" id="box-docker-run">
+        <p>[ Captura de PowerShell ejecutando docker run para api-v1 (puerto 8000) y api-v2 (puerto 8001) ]</p>
+    </div>
+
+    <h3>3.6. Verificación de Contenedores en Docker Desktop</h3>
+    <div class="img-box" id="box-docker-desktop">
+        <p>[ Captura de Docker Desktop mostrando api-v1 y api-v2 corriendo en simultáneo ]</p>
+    </div>
+
+    <h3>3.7. Comprobación en Navegador: Versión 1.0.0 (Puerto 8000) y Versión 2.0.0 (Puerto 8001)</h3>
+    <div class="img-box" id="box-browser">
+        <p>[ Capturas del navegador consultando /version y /status en http://localhost:8000 y http://localhost:8001 ]</p>
+    </div>
+
+    <h2>4. Conclusión</h2>
+    <p>
+        El uso coordinado de etiquetas de Git y registros de contenedores permite mantener una trazabilidad exacta entre el historial de código fuente y los binarios distribuidos. La ejecución simultánea de contenedores con diferentes versiones en un mismo host valida la portabilidad y aislamiento que ofrece Docker, facilitando estrategias de despliegue continuo como pruebas A/B o transiciones de versión sin interrupción de servicio.
+    </p>
+
+</body>
+</html>
