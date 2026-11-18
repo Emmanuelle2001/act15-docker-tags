@@ -95,21 +95,6 @@
             margin-top: 8px;
             font-style: italic;
         }
-        .img-box {
-            margin: 20px 0;
-            padding: 18px;
-            background-color: #fbfbfb;
-            border: 1px dashed #cccccc;
-            border-radius: 6px;
-            text-align: center;
-        }
-        .img-box p {
-            text-align: center;
-            font-size: 13px;
-            color: #666666;
-            margin: 0;
-            font-style: italic;
-        }
     </style>
 </head>
 <body>
@@ -172,39 +157,46 @@ git push origin v2.0.0</code></pre>
 
     <h2>3. Evidencias de Ejecución</h2>
 
-    <h3>3.1. Pruebas Unitarias Locales con Pytest</h3>
-    <div class="img-box" id="box-pytest">
-        <p>[ Captura de pantalla de la terminal ejecutando: python -m pytest -v ]</p>
+    <h3>3.1. Versionado y Creación de Etiquetas con Git Tags</h3>
+    <p>Se inicializó el repositorio y se publicaron las ramas y etiquetas correspondientes a las versiones v1.0.0 y v2.0.0:</p>
+    <div class="imagen-contenedor">
+        <img src="img/01_git_tags_push.jpg" alt="Versionado con Git Tags y Push al repositorio remoto">
+        <div class="pie-imagen">Figura 1. Creación y publicación de etiquetas de versión v1.0.0 y v2.0.0 en Git.</div>
     </div>
 
-    <h3>3.2. Generación de Imagen con Tag v1.0.0 en GitHub Actions</h3>
-    <div class="img-box" id="box-actions-v1">
-        <p>[ Captura de GitHub Actions completando el workflow para el tag v1.0.0 ]</p>
+    <h3>3.2. Ejecución Automatizada en GitHub Actions (Tags v1.0.0 y v2.0.0)</h3>
+    <p>El pipeline de GitHub Actions se activó automáticamente ante el push de cada tag y commit, compilando y publicando exitosamente ambas versiones de la imagen en GHCR:</p>
+    <div class="imagen-contenedor">
+        <img src="img/02_github_actions_v1_v2.png" alt="Historial de ejecuciones en GitHub Actions con tags">
+        <div class="pie-imagen">Figura 2. Ejecución satisfactoria de los workflows para los tags v1.0.0 y v2.0.0 en GitHub Actions.</div>
     </div>
 
-    <h3>3.3. Generación de Imagen con Tag v2.0.0 en GitHub Actions</h3>
-    <div class="img-box" id="box-actions-v2">
-        <p>[ Captura de GitHub Actions completando el workflow para el tag v2.0.0 ]</p>
+    <h3>3.3. Descarga de Imágenes y Ejecución Simultánea con Docker</h3>
+    <p>Se descargaron ambas versiones desde GitHub Container Registry con docker pull y se instanciaron dos contenedores asignando el puerto 8000 para api-v1 y el puerto 8001 para api-v2:</p>
+    <div class="imagen-contenedor">
+        <img src="img/03_docker_pull_run.jpg" alt="Descarga y ejecución de ambas versiones en Docker">
+        <div class="pie-imagen">Figura 3. Descarga y ejecución en segundo plano de api-v1 (puerto 8000) y api-v2 (puerto 8001).</div>
     </div>
 
-    <h3>3.4. Paquetes con Tags v1.0.0 y v2.0.0 en GitHub Packages</h3>
-    <div class="img-box" id="box-packages">
-        <p>[ Captura de la sección Packages en GitHub mostrando los tags v1.0.0 y v2.0.0 ]</p>
+    <h3>3.4. Verificación de Contenedores Simultáneos en Docker Desktop</h3>
+    <p>En la consola de administración de Docker Desktop se corroboró que ambos contenedores se encuentran en estado activo y en ejecución simultánea:</p>
+    <div class="imagen-contenedor">
+        <img src="img/04_docker_desktop_simultaneos.jpg" alt="Contenedores api-v1 y api-v2 activos en Docker Desktop">
+        <div class="pie-imagen">Figura 4. Panel de Docker Desktop mostrando los contenedores api-v1 y api-v2 corriendo al mismo tiempo.</div>
     </div>
 
-    <h3>3.5. Descarga y Ejecución Simultánea en Docker (Puertos 8000 y 8001)</h3>
-    <div class="img-box" id="box-docker-run">
-        <p>[ Captura de PowerShell ejecutando docker run para api-v1 (puerto 8000) y api-v2 (puerto 8001) ]</p>
+    <h3>3.5. Comprobación en Navegador: Versión 1.0.0 (Puerto 8000)</h3>
+    <p>Se realizó la consulta al endpoint /version en http://localhost:8000 confirmando la respuesta de la primera versión:</p>
+    <div class="imagen-contenedor">
+        <img src="img/05_api_version_v1.png" alt="Respuesta de la versión 1.0.0 en el navegador">
+        <div class="pie-imagen">Figura 5. Endpoint /version en puerto 8000 respondiendo con versión 1.0.0.</div>
     </div>
 
-    <h3>3.6. Verificación de Contenedores en Docker Desktop</h3>
-    <div class="img-box" id="box-docker-desktop">
-        <p>[ Captura de Docker Desktop mostrando api-v1 y api-v2 corriendo en simultáneo ]</p>
-    </div>
-
-    <h3>3.7. Comprobación en Navegador: Versión 1.0.0 (Puerto 8000) y Versión 2.0.0 (Puerto 8001)</h3>
-    <div class="img-box" id="box-browser">
-        <p>[ Capturas del navegador consultando /version y /status en http://localhost:8000 y http://localhost:8001 ]</p>
+    <h3>3.6. Comprobación en Navegador: Versión 2.0.0 (Puerto 8001)</h3>
+    <p>Se realizó la consulta al endpoint /version en http://localhost:8001 validando la respuesta de la segunda versión con las mejoras implementadas:</p>
+    <div class="imagen-contenedor">
+        <img src="img/06_api_version_v2.png" alt="Respuesta de la versión 2.0.0 en el navegador">
+        <div class="pie-imagen">Figura 6. Endpoint /version en puerto 8001 respondiendo con versión 2.0.0 y sus mejoras.</div>
     </div>
 
     <h2>4. Conclusión</h2>
